@@ -1,3 +1,5 @@
+import Hero from '@/components/landing/Hero';
+import Features from '@/components/landing/Features';
 import Pricing from '@/components/landing/Pricing';
 import { createClient } from '@/utils/supabase/server';
 import {
@@ -15,10 +17,14 @@ export default async function PricingPage() {
   ]);
 
   return (
-    <Pricing
-      user={user}
-      products={products ?? []}
-      subscription={subscription}
-    />
+    <>
+      <Hero />
+      <Features />
+      <Pricing
+        user={user}
+        products={products ?? []}
+        subscription={subscription}
+      />
+    </>
   );
 }
