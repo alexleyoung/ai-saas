@@ -4,7 +4,7 @@ import { getUser } from '@/utils/supabase/queries';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
-export const Dashboard = async () => {
+export default async function Dashboard() {
   const supabase = createClient();
   const user = await getUser(supabase);
 
@@ -20,6 +20,4 @@ export const Dashboard = async () => {
       <StudySets />
     </div>
   );
-};
-
-export default Dashboard;
+}

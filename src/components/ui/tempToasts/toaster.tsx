@@ -7,8 +7,8 @@ import {
   ToastProvider,
   ToastTitle,
   ToastViewport
-} from '@/components/ui/Toasts/toast';
-import { useToast } from '@/components/ui/Toasts/use-toast';
+} from '@/components/ui/tempToasts/toast';
+import { useToast } from '@/components/ui/tempToasts/use-toast';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
