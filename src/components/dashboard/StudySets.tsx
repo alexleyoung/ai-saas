@@ -26,9 +26,10 @@ const StudySets = ({ userId }: StudySetsProps) => {
             <DialogHeader>
               <DialogTitle>Create a new set</DialogTitle>
               <DialogDescription>
-                <NewSetForm userId={userId} className="mt-4" />
+                Generate a new set of flashcards given a custom context.
               </DialogDescription>
             </DialogHeader>
+            <NewSetForm userId={userId} className="mt-4" />
           </DialogContent>
         </Dialog>
       </header>

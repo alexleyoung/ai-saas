@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,11 +17,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/utils/cn';
+import { createClient } from '@/utils/supabase/client';
 
 const formSchema = z.object({
   name: z.string().min(2, {
     message: 'The set name must be at least 2 characters.'
   }),
+  description: z.string().optional(),
   context: z.string().min(2, {
     message: 'The context must be at least 2 characters.'
   })
@@ -29,19 +32,38 @@ const formSchema = z.object({
 type NewSetFormProps = { userId: string; className?: string };
 
 export default function NewSetForm({ userId, className }: NewSetFormProps) {
-  // 1. Define your form.
+  const [loading, setLoading] = useState(false);
+
+  // Form definition
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: ''
+      name: '',
+      description: '',
+      context: ''
     }
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  // Submit handler
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const supabase = createClient();
+
+    setLoading(true);
+    const { error } = await supabase.from('flashcard_sets').insert({
+      user_id: userId,
+      name: values.name,
+      description: values.description
+    });
+
+    const cards = await fetch('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: values.context }]
+      }),
+      headers: { 'Content-Type': 'application/json' }
+    }).then((res) => res.json());
+
+    console.log(cards);
   }
 
   return (
@@ -58,6 +80,19 @@ export default function NewSetForm({ userId, className }: NewSetFormProps) {
               <FormLabel>Set Name</FormLabel>
               <FormControl>
                 <Input placeholder="Calculus 1" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input placeholder="Calc 1 midterm review" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
