@@ -4,7 +4,7 @@ import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
 
 const SYSTEM_PROMT =
-  'You are an AI flashcard creation tool generating two-sided flashcards for a study session. The user will provide a summary of content they want to study, and you will generate a complete set of question and answer pairs.';
+  'You are an AI flashcard creation tool generating two-sided flashcards for a study session. The user will provide context of content they want to study, like a list of topics. You will generate a complete set of question and answer pairs which thouroughly cover all of the content.';
 
 const Flashcard = z.object({
   question: z.string(),

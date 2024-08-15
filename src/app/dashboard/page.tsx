@@ -1,8 +1,8 @@
-import StudySets from '@/components/dashboard/StudySets';
-
 import { getUser } from '@/utils/supabase/queries';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
+
+import StudySets from '@/components/dashboard/StudySets';
 
 export default async function Dashboard() {
   const supabase = createClient();
@@ -17,7 +17,7 @@ export default async function Dashboard() {
       <header>
         <h1 className="text-4xl">AI Flashcards</h1>
       </header>
-      <StudySets />
+      <StudySets userId={user.id} />
     </div>
   );
 }
