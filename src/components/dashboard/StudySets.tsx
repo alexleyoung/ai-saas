@@ -35,12 +35,12 @@ const StudySets = ({ userId }: StudySetsProps) => {
     // Fetch sets from the database
     const supabase = createClient();
 
-    const res = await supabase
+    const { data, error } = await supabase
       .from('flashcard_sets')
       .select('*')
       .eq('user_id', userId);
 
-    setSets(res.data?.reverse() || []);
+    setSets(data?.reverse() || []);
     setLoading(false);
   };
 

@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
-import { PropsWithChildren, Suspense } from 'react';
+import { PropsWithChildren } from 'react';
 import { getURL } from '@/utils/helpers';
+import { Analytics } from '@vercel/analytics/react';
+
 import { Toaster } from '@/components/ui/toaster';
 
 import './main.css';
@@ -23,6 +25,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
     <html lang="en">
       <body className="bg-background">
         {children}
+        <Analytics />
         <Toaster />
       </body>
     </html>
