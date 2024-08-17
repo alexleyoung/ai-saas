@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,8 +17,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/utils/cn';
-import { createClient } from '@/utils/supabase/client';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -29,10 +30,19 @@ const formSchema = z.object({
   })
 });
 
-type NewSetFormProps = { userId: string; className?: string };
+type NewSetFormProps = {
+  userId: string;
+  className?: string;
+  fetchSets: () => void;
+};
 
-export default function NewSetForm({ userId, className }: NewSetFormProps) {
+export default function NewSetForm({
+  userId,
+  className,
+  fetchSets
+}: NewSetFormProps) {
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   // Form definition
   const form = useForm<z.infer<typeof formSchema>>({
@@ -49,11 +59,19 @@ export default function NewSetForm({ userId, className }: NewSetFormProps) {
     const supabase = createClient();
 
     setLoading(true);
-    const { error } = await supabase.from('flashcard_sets').insert({
-      user_id: userId,
-      name: values.name,
-      description: values.description
+    toast({
+      title: 'Creating Flashcards...',
+      description: 'Please wait while we generate your flashcards.'
     });
+
+    const { data, error } = await supabase
+      .from('flashcard_sets')
+      .insert({
+        user_id: userId,
+        name: values.name,
+        description: values.description
+      })
+      .select('id');
 
     const cards = await fetch('/api/chat', {
       method: 'POST',
@@ -63,7 +81,37 @@ export default function NewSetForm({ userId, className }: NewSetFormProps) {
       headers: { 'Content-Type': 'application/json' }
     }).then((res) => res.json());
 
-    console.log(cards);
+    if (cards?.flashcards && data) {
+      const cardsData = cards.flashcards.map((card: any) => ({
+        set_id: Number(data[0].id),
+        user_id: userId,
+        question: card.question,
+        answer: card.answer
+      }));
+
+      cardsData.forEach(
+        async (cardData: {
+          set_id: number;
+          user_id: string;
+          question: string;
+          answer: string;
+        }) => {
+          await supabase.from('flashcards').insert(cardData);
+        }
+      );
+      toast({
+        title: 'Success',
+        description: 'Flashcards created successfully! '
+      });
+      fetchSets();
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Failed to create flashcards. Please try again.'
+      });
+    }
+
+    setLoading(false);
   }
 
   return (
@@ -115,7 +163,9 @@ export default function NewSetForm({ userId, className }: NewSetFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit">Create</Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? 'Creating...' : 'Create Set'}
+        </Button>
       </form>
     </Form>
   );
