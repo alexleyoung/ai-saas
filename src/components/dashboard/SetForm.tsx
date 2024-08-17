@@ -79,6 +79,10 @@ export default function SetForm({
   // save set to DB
   const saveSet = async () => {
     setLoading(true);
+    toast({
+      title: 'Saving Flashcards...',
+      description: 'Please wait while we save your flashcards.'
+    });
     const supabase = createClient();
     // create new set
     const { data, error } = await supabase
@@ -112,14 +116,22 @@ export default function SetForm({
     } else if (!cards) {
       toast({
         title: 'Error',
-        description: 'No flashcards to save! Generate some first before saving.'
+        description:
+          'No flashcards to save! Generate some first before saving.',
+        variant: 'destructive'
       });
-    } else {
+    } else if (error) {
       toast({
         title: 'Error',
-        description: 'Failed to save flashcards. Please try again.'
+        description: 'Failed to save flashcards. Please try again.',
+        variant: 'destructive'
       });
     }
+    await fetchSets();
+    toast({
+      title: 'Success!',
+      description: 'Flashcards saved successfully.'
+    });
     setLoading(false);
   };
 
@@ -144,20 +156,24 @@ export default function SetForm({
       if (!values.context) {
         toast({
           title: 'Error',
-          description: 'Please provide a context to generate flashcards.'
+          description: 'Please provide a context to generate flashcards.',
+          variant: 'destructive'
         });
         setLoading(false);
         return;
       }
 
       // generate cards and update state
+      setSetName(values.name);
+      setSetDescription(values.description || '');
       const { flashcards } = await chat(values.context);
       setCards(flashcards);
 
-      if (cards === null) {
+      if (flashcards === null) {
         toast({
           title: 'Error',
-          description: 'Failed to generate flashcards. Please try again.'
+          description: 'Failed to generate flashcards. Please try again.',
+          variant: 'destructive'
         });
         setLoading(false);
         return;
@@ -180,7 +196,8 @@ export default function SetForm({
       if (error) {
         toast({
           title: 'Error',
-          description: 'Failed to update flashcards. Please try again.'
+          description: 'Failed to update flashcards. Please try again.',
+          variant: 'destructive'
         });
       } else {
         toast({
@@ -292,6 +309,7 @@ export default function SetForm({
               onClick={async () => {
                 await saveSet();
               }}
+              disabled={loading}
             >
               Save
             </Button>

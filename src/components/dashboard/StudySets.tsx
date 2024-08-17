@@ -22,6 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import SetCard from './SetCard';
 import SetForm from './SetForm';
+import { toast } from '../ui/use-toast';
 
 type StudySetsProps = { userId: string };
 
@@ -59,8 +60,23 @@ const StudySets = ({ userId }: StudySetsProps) => {
 
   const deleteSet = async (id: number) => {
     const supabase = createClient();
-    await supabase.from('flashcard_sets').delete().eq('id', id);
-    fetchSets();
+    const { error } = await supabase
+      .from('flashcard_sets')
+      .delete()
+      .eq('id', id);
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete set. Please try again.',
+        variant: 'destructive'
+      });
+    } else {
+      toast({
+        title: 'Success',
+        description: 'Set deleted successfully'
+      });
+      fetchSets();
+    }
   };
 
   return (
