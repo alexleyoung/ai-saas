@@ -1,5 +1,6 @@
 'use client';
 
+import { Skeleton } from '@/components/ui/skeleton';
 import { createClient } from '@/utils/supabase/client';
 import { ArrowLeftCircle, ArrowRightCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -38,20 +39,22 @@ const Flashcard = ({ setId }: FlashcardProps) => {
   return (
     <div className="flex flex-col gap-4 items-center">
       {/* card box */}
-      <div
-        className="w-96 h-64 bg-accent p-8 grid place-items-center text-center rounded-md shadow-md"
-        onClick={() => {
-          setSide(side === 'q' ? 'a' : 'q');
-        }}
-      >
-        {flashcards[cardIdx]
-          ? side === 'q'
+      {loading ? (
+        <Skeleton className="w-96 h-64" />
+      ) : (
+        <div
+          className="w-96 h-64 bg-accent p-8 grid place-items-center text-center rounded-md shadow-md text-lg"
+          onClick={() => {
+            setSide(side === 'q' ? 'a' : 'q');
+          }}
+        >
+          {side === 'q'
             ? flashcards[cardIdx].question
-            : flashcards[cardIdx].answer
-          : 'No flashcards'}
-      </div>
+            : flashcards[cardIdx].answer}
+        </div>
+      )}
       {/* pagination */}
-      <div className="flex gap-8">
+      <div className="flex justify-between w-40 scale-125">
         <ArrowLeftCircle
           className={`transition-colors ${cardIdx === 0 ? 'text-primary/40' : 'hover:text-blue-500'}`}
           onClick={() => {
@@ -63,7 +66,9 @@ const Flashcard = ({ setId }: FlashcardProps) => {
         <ArrowRightCircle
           className={`transition-colors ${cardIdx === flashcards.length - 1 ? 'text-primary/40' : 'hover:text-blue-500'}`}
           onClick={() => {
-            setCardIdx((idx) => idx + 1);
+            cardIdx === flashcards.length - 1
+              ? ''
+              : setCardIdx((idx) => idx + 1);
             setSide('q');
           }}
         />

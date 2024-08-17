@@ -14,3 +14,10 @@ export type Flashcard = {
   answer: string;
   created_at: string;
 };
+
+export type aiChat = {
+  flashcards: {
+    question: string;
+    answer: string;
+  }[];
+};

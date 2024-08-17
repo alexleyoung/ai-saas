@@ -18,6 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/utils/cn';
 
 const formSchema = z.object({
@@ -44,6 +45,11 @@ export default function SetForm({
   fetchSets
 }: SetFormProps) {
   const [loading, setLoading] = useState(false);
+  const [cards, setCards] = useState<
+    { question: string; answer: string }[] | null
+  >(null);
+  const [setName, setSetName] = useState('');
+  const [setDescription, setSetDescription] = useState('');
   const { toast } = useToast();
 
   // Form definition
@@ -55,6 +61,67 @@ export default function SetForm({
       context: ''
     }
   });
+
+  // chat with ai
+  const chat = async (context: string) => {
+    setLoading(true);
+    const data: aiChat = await fetch('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: context }]
+      }),
+      headers: { 'Content-Type': 'application/json' }
+    }).then((res) => res.json());
+    return data || null;
+    setLoading(false);
+  };
+
+  // save set to DB
+  const saveSet = async () => {
+    setLoading(true);
+    const supabase = createClient();
+    // create new set
+    const { data, error } = await supabase
+      .from('flashcard_sets')
+      .insert({
+        user_id: userId,
+        name: setName,
+        description: setDescription
+      })
+      .select('id');
+
+    // save cards
+    if (cards && data) {
+      const cardsData = cards.map((card: any) => ({
+        set_id: Number(data[0].id),
+        user_id: userId,
+        question: card.question,
+        answer: card.answer
+      }));
+
+      cardsData.forEach(
+        async (cardData: {
+          set_id: number;
+          user_id: string;
+          question: string;
+          answer: string;
+        }) => {
+          await supabase.from('flashcards').insert(cardData);
+        }
+      );
+    } else if (!cards) {
+      toast({
+        title: 'Error',
+        description: 'No flashcards to save! Generate some first before saving.'
+      });
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Failed to save flashcards. Please try again.'
+      });
+    }
+    setLoading(false);
+  };
 
   // Submit handler
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -83,50 +150,21 @@ export default function SetForm({
         return;
       }
 
-      const { data, error } = await supabase
-        .from('flashcard_sets')
-        .insert({
-          user_id: userId,
-          name: values.name,
-          description: values.description
-        })
-        .select('id');
+      // generate cards and update state
+      const { flashcards } = await chat(values.context);
+      setCards(flashcards);
 
-      const cards = await fetch('/api/chat', {
-        method: 'POST',
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: values.context }]
-        }),
-        headers: { 'Content-Type': 'application/json' }
-      }).then((res) => res.json());
-
-      if (cards?.flashcards && data) {
-        const cardsData = cards.flashcards.map((card: any) => ({
-          set_id: Number(data[0].id),
-          user_id: userId,
-          question: card.question,
-          answer: card.answer
-        }));
-
-        cardsData.forEach(
-          async (cardData: {
-            set_id: number;
-            user_id: string;
-            question: string;
-            answer: string;
-          }) => {
-            await supabase.from('flashcards').insert(cardData);
-          }
-        );
-        toast({
-          title: 'Success!',
-          description: 'Flashcards created successfully.'
-        });
-        fetchSets();
-      } else {
+      if (cards === null) {
         toast({
           title: 'Error',
-          description: 'Failed to create flashcards. Please try again.'
+          description: 'Failed to generate flashcards. Please try again.'
+        });
+        setLoading(false);
+        return;
+      } else {
+        toast({
+          title: 'Success!',
+          description: 'Flashcards generated successfully.'
         });
       }
     } else if (type === 'update') {
@@ -138,8 +176,6 @@ export default function SetForm({
           last_used: new Date().toISOString()
         })
         .eq('id', set?.id!);
-
-      console.log(error);
 
       if (error) {
         toast({
@@ -165,6 +201,7 @@ export default function SetForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn('space-y-8', className)}
       >
+        {/* name */}
         <FormField
           control={form.control}
           name="name"
@@ -178,6 +215,7 @@ export default function SetForm({
             </FormItem>
           )}
         />
+        {/* description (optional) */}
         <FormField
           control={form.control}
           name="description"
@@ -194,6 +232,7 @@ export default function SetForm({
             </FormItem>
           )}
         />
+        {/* context */}
         {type === 'create' && (
           <FormField
             control={form.control}
@@ -204,7 +243,7 @@ export default function SetForm({
                 <FormControl>
                   <Textarea
                     placeholder="Topcis: Limits, Derivatives, methods of derivation, applications of derivatives, integrals, methods of integration, applications of integrals, integral revolutions, sequences, series, power series, Taylor series."
-                    className="resize-none min-h-48"
+                    className="resize-none min-h-32"
                     {...field}
                   />
                 </FormControl>
@@ -213,15 +252,51 @@ export default function SetForm({
             )}
           />
         )}
-        <Button type="submit" disabled={loading}>
-          {loading
-            ? type === 'create'
-              ? 'Creating...'
-              : 'Updating...'
-            : type === 'create'
-              ? 'Create'
-              : 'Save'}
-        </Button>
+        {/* preview */}
+        <div className="flex flex-col border p-4 rounded-md h-64 overflow-y-scroll">
+          {loading ? (
+            <div className="flex flex-col gap-2 my-4 overflow-y-hidden">
+              <Skeleton className="w-full h-20" />
+              <Skeleton className="w-full h-20" />
+              <Skeleton className="w-full h-20" />
+            </div>
+          ) : cards ? (
+            cards.map((card, idx) => {
+              return (
+                <div key={idx} className="flex flex-col gap-2 my-4">
+                  <h3 className="font-semibold">Card {idx + 1}</h3>
+                  <p>{'q: ' + card.question}</p>
+                  <p>{'a: ' + card.answer}</p>
+                </div>
+              );
+            })
+          ) : (
+            <em className="text-gray-400 grid place-items-center h-64">
+              Preview
+            </em>
+          )}
+        </div>
+        {/* buttons */}
+        <div className="flex justify-between w-full">
+          <Button type="submit" disabled={loading}>
+            {loading
+              ? type === 'create'
+                ? 'Generating...'
+                : 'Updating...'
+              : type === 'create'
+                ? 'Preview'
+                : 'Save'}
+          </Button>
+          {type === 'create' && (
+            <Button
+              onClick={async () => {
+                await saveSet();
+              }}
+            >
+              Save
+            </Button>
+          )}
+        </div>
       </form>
     </Form>
   );

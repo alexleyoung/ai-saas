@@ -38,9 +38,10 @@ const StudySets = ({ userId }: StudySetsProps) => {
     const { data, error } = await supabase
       .from('flashcard_sets')
       .select('*')
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .order('last_used', { ascending: false });
 
-    setSets(data?.reverse() || []);
+    setSets(data || []);
     setLoading(false);
   };
 
@@ -48,7 +49,7 @@ const StudySets = ({ userId }: StudySetsProps) => {
     fetchSets();
   }, []);
 
-  const updateLastUee = async (id: number) => {
+  const updateLastUse = async (id: number) => {
     const supabase = createClient();
     await supabase
       .from('flashcard_sets')
@@ -79,9 +80,9 @@ const StudySets = ({ userId }: StudySetsProps) => {
             </DialogHeader>
             <SetForm
               userId={userId}
-              className="mt-4"
               fetchSets={fetchSets}
               type="create"
+              className="mt-4 space-y-4"
             />
           </DialogContent>
         </Dialog>
@@ -107,7 +108,7 @@ const StudySets = ({ userId }: StudySetsProps) => {
                         name={set.name}
                         id={set.id}
                         update={() => {
-                          updateLastUee(set.id);
+                          updateLastUse(set.id);
                         }}
                       />
                     </ContextMenuTrigger>
