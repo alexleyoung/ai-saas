@@ -36,6 +36,8 @@ export async function POST(req: NextRequest) {
     response_format: zodResponseFormat(Flashcards, 'flashcards') // Validate the response format
   });
 
+  console.log(completion);
+
   const flashcards_res = JSON.parse(
     completion.choices[0].message.content || '{}'
   );
