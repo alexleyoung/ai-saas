@@ -73,6 +73,7 @@ export default function SetForm({
       headers: { 'Content-Type': 'application/json' }
     }).then((res) => res.json());
     setLoading(false);
+    console.log(data);
     return data || null;
   };
 
