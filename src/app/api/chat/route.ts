@@ -25,7 +25,7 @@ const Flashcard = z.object({
 const Flashcards = z.object({ flashcards: z.array(Flashcard) });
 
 export async function POST(req: NextRequest) {
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
   const body = await req.json();
 
   // Create a chat completion request to the OpenAI API
@@ -35,8 +35,6 @@ export async function POST(req: NextRequest) {
     // Include the system prompt and user messages
     response_format: zodResponseFormat(Flashcards, 'flashcards') // Validate the response format
   });
-
-  console.log(completion);
 
   const flashcards_res = JSON.parse(
     completion.choices[0].message.content || '{}'
