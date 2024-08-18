@@ -43,6 +43,16 @@ const StudySets = ({ userId }: StudySetsProps) => {
       .order('last_used', { ascending: false });
 
     setSets(data || []);
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch sets. Please try again.',
+        variant: 'destructive'
+      });
+      console.log(error);
+    }
+
     setLoading(false);
   };
 
