@@ -27,8 +27,6 @@ const Flashcard = ({ setId }: FlashcardProps) => {
       .eq('set_id', setId);
 
     setFlashcards(data || []);
-    console.log(data);
-    console.log(error);
     setLoading(false);
   };
 

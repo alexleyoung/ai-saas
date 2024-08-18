@@ -1,9 +1,13 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 const Header = () => {
   return (
-    <header className="bg-accent px-8 py-6 font-bold text-3xl">
-      <Link href="/dashboard">Qwizard</Link>
+    <header className="border-b border-accent flex justify-between gap-2 p-4">
+      <nav className="flex gap-4 items-center font-medium tracking-wide">
+        <Image src="/logo.png" alt="logo" height={40} width={40} />
+        <Link href="/dashboard">Dashboard</Link>
+      </nav>
     </header>
   );
 };

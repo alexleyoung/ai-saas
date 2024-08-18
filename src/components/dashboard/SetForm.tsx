@@ -270,29 +270,31 @@ export default function SetForm({
           />
         )}
         {/* preview */}
-        <div className="flex flex-col border p-4 rounded-md h-64 overflow-y-scroll">
-          {loading ? (
-            <div className="flex flex-col gap-2 my-4 overflow-y-hidden">
-              <Skeleton className="w-full h-20" />
-              <Skeleton className="w-full h-20" />
-              <Skeleton className="w-full h-20" />
-            </div>
-          ) : cards ? (
-            cards.map((card, idx) => {
-              return (
-                <div key={idx} className="flex flex-col gap-2 my-4">
-                  <h3 className="font-semibold">Card {idx + 1}</h3>
-                  <p>{'q: ' + card.question}</p>
-                  <p>{'a: ' + card.answer}</p>
-                </div>
-              );
-            })
-          ) : (
-            <em className="text-gray-400 grid place-items-center h-64">
-              Preview
-            </em>
-          )}
-        </div>
+        {type === 'create' && (
+          <div className="flex flex-col border p-4 rounded-md h-64 overflow-y-auto">
+            {loading ? (
+              <div className="flex flex-col gap-2 my-4 overflow-y-hidden">
+                <Skeleton className="w-full h-20" />
+                <Skeleton className="w-full h-20" />
+                <Skeleton className="w-full h-20" />
+              </div>
+            ) : cards ? (
+              cards.map((card, idx) => {
+                return (
+                  <div key={idx} className="flex flex-col gap-2 my-4">
+                    <h3 className="font-semibold">Card {idx + 1}</h3>
+                    <p>{'q: ' + card.question}</p>
+                    <p>{'a: ' + card.answer}</p>
+                  </div>
+                );
+              })
+            ) : (
+              <em className="text-gray-400 grid place-items-center h-64">
+                Preview
+              </em>
+            )}
+          </div>
+        )}
         {/* buttons */}
         <div className="flex justify-between w-full">
           <Button type="submit" disabled={loading}>

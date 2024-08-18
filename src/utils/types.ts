@@ -4,6 +4,7 @@ export type FlashcardSet = {
   name: string;
   description: string | null;
   created_at: string;
+  last_used: string;
 };
 
 export type Flashcard = {
