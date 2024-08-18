@@ -40,5 +40,5 @@ export async function POST(req: NextRequest) {
     completion.choices[0].message.content || '{}'
   );
 
-  return NextResponse.json(flashcards_res); // Return the stream as the response
+  return NextResponse.json(flashcards_res); // Return flashcards object
 }

@@ -72,8 +72,8 @@ export default function SetForm({
       }),
       headers: { 'Content-Type': 'application/json' }
     }).then((res) => res.json());
-    return data || null;
     setLoading(false);
+    return data || null;
   };
 
   // save set to DB
