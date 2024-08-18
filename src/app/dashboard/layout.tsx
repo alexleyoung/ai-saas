@@ -1,11 +1,11 @@
-import Sidebar from '@/components/dashboard/Sidebar';
+import Header from '@/components/dashboard/Header';
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex">
-      <Sidebar />
+    <>
+      <Header />
       <main className="w-full  overflow-x-hidden">{children}</main>
-    </div>
+    </>
   );
 };
 
