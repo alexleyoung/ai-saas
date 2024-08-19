@@ -7,6 +7,7 @@ import {
   getSubscription,
   getUser
 } from '@/utils/supabase/queries';
+import { redirect } from 'next/navigation';
 
 export default async function LandingPage() {
   const supabase = createClient();
