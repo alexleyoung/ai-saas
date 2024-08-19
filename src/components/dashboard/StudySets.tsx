@@ -113,10 +113,10 @@ const StudySets = ({ userId }: StudySetsProps) => {
               .from('flashcard_sets')
               .select('*')
               .eq('user_id', userId)
-              .textSearch('name', search)
+              .ilike('name', `%${search}%`)
               .order('last_used', { ascending: false });
-            console.log(data);
             setSets(data || []);
+            console.log(error);
           }}
           className="flex items-center gap-1"
         >
@@ -124,7 +124,9 @@ const StudySets = ({ userId }: StudySetsProps) => {
             className=" rounded-l-md rounded-r-none"
             placeholder="Search..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
           />
           <Button
             asChild
@@ -246,42 +248,3 @@ const StudySets = ({ userId }: StudySetsProps) => {
 };
 
 export default StudySets;
-
-// sets.map((set) => {
-//   return (
-//     <Dialog key={set.id}>
-//       <ContextMenu>
-//         <ContextMenuTrigger>
-//           <SetCard
-//             name={set.name}
-//             id={set.id}
-//             update={() => {
-//               updateLastUse(set.id);
-//             }}
-//           />
-//         </ContextMenuTrigger>
-// <ContextMenuContent>
-//   <ContextMenuItem>
-//     <DialogTrigger>Edit</DialogTrigger>
-//   </ContextMenuItem>
-//   <ContextMenuItem onClick={() => deleteSet(set.id)}>
-//     Delete
-//   </ContextMenuItem>
-// </ContextMenuContent>
-//       </ContextMenu>
-// <DialogContent>
-//   <DialogHeader>
-//     <DialogTitle>Edit Set</DialogTitle>
-//     <DialogDescription className="hidden" />
-//   </DialogHeader>
-//   <SetForm
-//     userId={userId}
-//     type="update"
-//     set={set}
-//     fetchSets={fetchSets}
-//     className="space-y-4"
-//   />
-// </DialogContent>
-//     </Dialog>
-//   );
-// })
