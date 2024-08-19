@@ -5,8 +5,8 @@ import { Toaster } from '@/components/ui/tempToasts/toaster';
 import { PropsWithChildren, Suspense } from 'react';
 import { getURL } from '@/utils/helpers';
 
-const title = 'AI-SaaS';
-const description = 'Headstarter Project 4';
+const title = 'Qwizard';
+const description = 'Flashcards and studying powered by AI';
 
 export const metadata: Metadata = {
   metadataBase: new URL(getURL()),
