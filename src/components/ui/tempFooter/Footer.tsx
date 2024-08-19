@@ -83,7 +83,7 @@ export default function Footer() {
           <div className="flex items-center h-10 space-x-6">
             <a
               aria-label="Github Repository"
-              href="https://github.com/alexleyoung/ai-saas"
+              href="https://github.com/alexleyoung/qwizard"
             >
               <GitHub />
             </a>
