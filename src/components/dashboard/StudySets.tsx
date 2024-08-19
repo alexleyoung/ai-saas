@@ -76,7 +76,7 @@ const StudySets = ({ userId }: StudySetsProps) => {
     const supabase = createClient();
     await supabase
       .from('flashcard_sets')
-      .update({ last_used: new Date().toISOString() })
+      .update({ last_used: new Date().toString() })
       .eq('id', id);
   };
 
@@ -197,16 +197,25 @@ const StudySets = ({ userId }: StudySetsProps) => {
                           <TableCell>{set.name}</TableCell>
                           <TableCell>{set.description}</TableCell>
                           <TableCell>
-                            {new Date(set.last_used).toLocaleString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: 'numeric',
-                              minute: 'numeric',
-                              hour12: true
-                            })}
+                            {set.last_used
+                              ? new Date(set.last_used).toLocaleString(
+                                  'en-US',
+                                  {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: 'numeric',
+                                    minute: 'numeric',
+                                    hour12: true
+                                  }
+                                )
+                              : 'Never'}
                           </TableCell>
                           <TableCell className="flex justify-end">
-                            <Link href={`/dashboard/${set.id}`}>
+                            <Link
+                              href={`/dashboard/${set.id}`}
+                              onClick={() => updateLastUse(set.id)}
+                            >
                               <ArrowUpRightFromSquare className="hover:text-blue-400 transition-colors" />
                             </Link>
                           </TableCell>
